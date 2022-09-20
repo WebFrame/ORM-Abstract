@@ -9,7 +9,6 @@
 #include <orm/orm.hpp>
 #include <string>
 #include <regex>
-#include <iostream>
 
 namespace ORM {
     /* abstract */ class Dialect {
@@ -72,29 +71,22 @@ namespace ORM {
         template <typename ArgT1, typename... ArgTs>
         inline std::string get_query(std::string query, ArgT1 arg1, ArgTs... args) {
             // TODO: SQL injection protection
-            std::cout << "Dialect many args: " << query << std::endl;
-            std::string _ = this->get_query(
+            return this->get_query(
                 std::regex_replace(query, this->get_var_regex(), this->parse(arg1), std::regex_constants::format_first_only),
                 args...
             );
-            std::cout << "Dialect many args: " << query << " = " << _ << std::endl;
-            return _;
         }
 
         template <typename ArgT1>
         inline std::string get_query(std::string query, ArgT1 arg1) {
             // TODO: SQL injection protection
-            std::cout << "Dialect 1 arg: " <<query << std::endl;
-            std::string _ = this->get_query(
+            return this->get_query(
                 regex_replace(query, this->get_var_regex(), this->parse(arg1), std::regex_constants::format_first_only)
             );
-            std::cout << "Dialect 1 arg: " << query << " = " << _ << std::endl;
-            return _;
         }
 
         inline std::string get_query(std::string query) {
             // TODO: SQL injection protection
-            std::cout << "Dialect no args: " << query << std::endl;
             return query;
         }
     };
