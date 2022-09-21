@@ -5,27 +5,27 @@
 #include <string>
 
 class Users : public ORM::Table {
+public:
     static constexpr auto id = ORM::Column<int>();
     static constexpr auto username = ORM::Column<std::string>();
-public:
+    
     using Entity = ORM::Result<id, username>;
 
-    static const ORM::Query<void           , id, username> insertUser;
-    static const ORM::Query<ORM::Result<id>, username    > selectUser;
-    static const ORM::Query<Entity                       > selectAllUsers;
+    static constexpr auto insertUser          = ORM::     Query<Users, void           , id, username>("INSERT INTO Users VALUES (?, ?)");
+    static constexpr auto selectUser          = ORM::     Query<Users, ORM::Result<id>, username    >("SELECT Users.id FROM Users WHERE Users.username=?");
+    static constexpr auto selectAllUsers      = ORM::     Query<Users, Entity                       >("SELECT Users.id, Users.username FROM Users");
+    static constexpr auto pagedSelectAllUsers = ORM::PagedQuery<Users, Entity                       >("SELECT Users.id, Users.username FROM Users");
 
-private:
-    template<typename RowT>
-    static std::shared_ptr<ORM::DBExecutor<RowT>> get_conn() {
+public:
+    static std::shared_ptr<ORM::MySQL> get_native_conn() {
         static const std::string connection_string = "connection string";
-        static const auto conn = std::static_pointer_cast<ORM::DBExecutor<RowT>>(std::make_shared<ORM::MySQLExecutor<RowT>>(connection_string));
+        static const auto conn = std::make_shared<ORM::MySQL>(connection_string);
         return conn;
     }
+    
+    template<typename RowT>
+    static std::shared_ptr<ORM::DBExecutor<RowT>> get_executor() {
+        static const auto exec = std::static_pointer_cast<ORM::DBExecutor<RowT>>(std::make_shared<ORM::MySQLExecutor<RowT>>(get_native_conn()));
+        return exec;
+    }
 };
-
-// auto Users::insertUser = ORM::TransactionalQuery<Users::id, Users::username> (Users::get_conn, "INSERT INTO Users VALUES (?, ?);");
-// auto Users::selectUser = ORM::NonTransactionalQuery<ORM::Result<Users::id>, Users::username> (Users::get_conn, "SELECT Users.id FROM Users WHERE Users.username=?;");
-// auto Users::selectAllUsers = ORM::NonTransactionalQuery<ORM::Result<Users::User>> (Users::get_conn, "SELECT Users.id, Users.username FROM Users;");
-const ORM::Query<void                  , Users::id, Users::username> Users::insertUser     = ORM::Query<void                      , Users::id, Users::username> (Users::get_conn<void>, "INSERT INTO Users VALUES (?, ?);");
-const ORM::Query<ORM::Result<Users::id>, Users::username           > Users::selectUser     = ORM::Query<ORM::Result<Users::id>    , Users::username           > (Users::get_conn<ORM::Result<Users::id>>, "SELECT Users.id FROM Users WHERE Users.username=?;");
-const ORM::Query<Users::Entity                                     > Users::selectAllUsers = ORM::Query<Users::Entity                                         > (Users::get_conn<Users::Entity>, "SELECT Users.id, Users.username FROM Users;");

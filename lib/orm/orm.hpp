@@ -24,8 +24,15 @@ namespace ORM {
 
     class DBConnection;
     
-    template<typename RowT, Column... Columns>
+    template<typename TableT,
+             typename RowT, Column... Columns>
     class Query;
+
+    class Page;
+
+    template<typename TableT,
+             typename RowT, Column... Columns>
+    class PagedQuery;
 }
 
 #include <orm/connections/init.hpp>

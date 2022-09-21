@@ -10,6 +10,10 @@
 //#include <cppconn/statement.h>
 
 namespace ORM {
+    template<typename RowT>
+    class MySQLExecutor;
+    class MySQL;
+
     class MySQL : public DBConnection
     {
     protected:
@@ -124,22 +128,34 @@ namespace ORM {
             std::regex get_var_regex() const {
                 return std::regex("\\?");
             }
+            
+            Page get_pagification() const {
+                static const Page pagification = Page("LIMIT %zu, %zu");
+                return pagification;
+            }
         public:
         };
+
+        template<typename RowT>
+        friend class MySQLExecutor;
     };
     
     template<typename RowT>
-    class MySQLExecutor : public MySQL, public DBExecutor<RowT> {
+    class MySQLExecutor : public DBExecutor<RowT> {
     protected:
-        void init_conn(const std::string& conn) { MySQL::init_conn(conn); }
+        std::shared_ptr<MySQL> conn;
+        void init_conn(const std::string& connection_str) { conn->init_conn(connection_str); }
     public:
-        std::shared_ptr<Dialect> get_dialect() const { return MySQL::get_dialect(); }
+    
+        std::shared_ptr<Dialect> get_dialect() const { return conn->get_dialect(); }
         
-        void commit() { MySQL::commit(); }
+        void commit() { conn->commit(); }
         
-        void rollback() { MySQL::rollback(); }
+        void rollback() { conn->rollback(); }
 
-        MySQLExecutor(const std::string& conn) : MySQL(conn) {}
+        MySQLExecutor(std::shared_ptr<MySQL> connection) {
+            conn = connection;
+        }
 
         std::list<RowT> execute(const std::string& query) { // non-transactional
             std::cout << "MySQL::execute: " << query << std::endl;
@@ -161,17 +177,21 @@ namespace ORM {
     };
 
     template<>
-    class MySQLExecutor<void> : public MySQL, public DBExecutor<void> {
+    class MySQLExecutor<void> : public DBExecutor<void> {
     protected:
-        void init_conn(const std::string& conn) { MySQL::init_conn(conn); }
+        std::shared_ptr<MySQL> conn;
+        void init_conn(const std::string& connection_str) { conn->init_conn(connection_str); }
     public:
-        std::shared_ptr<Dialect> get_dialect() const { return MySQL::get_dialect(); }
+    
+        std::shared_ptr<Dialect> get_dialect() const { return conn->get_dialect(); }
         
-        void commit() { MySQL::commit(); }
+        void commit() { conn->commit(); }
         
-        void rollback() { MySQL::rollback(); }
+        void rollback() { conn->rollback(); }
 
-        MySQLExecutor(const std::string& conn) : MySQL(conn) {}
+        MySQLExecutor(std::shared_ptr<MySQL> connection) {
+            conn = connection;
+        }
         
         void execute(const std::string& query) { // transactional
             std::cout << "MySQL::execute: " << query << std::endl;

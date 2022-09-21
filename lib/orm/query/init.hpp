@@ -9,22 +9,25 @@
 #include <orm/orm.hpp>
 #include <list>
 #include <iostream>
+#include <type_traits>
 
 namespace ORM {
-    template<typename RowT, Column... Columns>
+    template<typename TableT,
+             typename RowT, Column... Columns>
     /* abstract */ class Query {
         std::string_view _query;
-        std::function<std::shared_ptr<DBExecutor<RowT>>()> get_conn;
-        
-        virtual std::string query() const { return _query.data(); }
+    protected:        
+        std::string query() const { return _query.data(); }
         
         std::list<RowT> execute(typename decltype(Columns)::type... args) const {
-            return this->get_conn()->execute(
-                this->get_conn()->get_dialect()->get_query(this->query(), args...)
+            auto exec = TableT::template get_executor<RowT>();
+            return exec->execute(
+                exec->get_dialect()->get_query(this->query(), args...)
             );
         }
     public:
-        constexpr Query(std::function<std::shared_ptr<DBExecutor<RowT>>()> conn, const std::string_view& query_prepare_statement) : _query(query_prepare_statement), get_conn(conn) {
+        constexpr Query(const std::string_view& query_prepare_statement) : _query(query_prepare_statement) {
+            //static_assert(std::is_base_of<Table, TableT>::value, "Query should be applied onto class derived from Table.");
         }
 
         std::list<RowT> operator()(typename decltype(Columns)::type... args) const {
@@ -32,20 +35,22 @@ namespace ORM {
         }
     };
 
-    template<Column... Columns>
-    /* abstract */ class Query<void, Columns...> {
+    template<typename TableT,
+             Column... Columns>
+    /* abstract */ class Query<TableT, void, Columns...> {
         std::string_view _query;
-        std::function<std::shared_ptr<DBExecutor<void>>()> get_conn;
-        
-        virtual std::string query() const { return _query.data(); }
+    protected:
+        std::string query() const { return _query.data(); }
         
         void execute(typename decltype(Columns)::type... args) const {
-            this->get_conn()->execute(
-                this->get_conn()->get_dialect()->get_query(this->query(), args...)
+            auto exec = TableT::template get_executor<void>();
+            exec->execute(
+                exec->get_dialect()->get_query(this->query(), args...)
             );
         }
     public:
-        Query(std::function<std::shared_ptr<DBExecutor<void>>()> conn, const std::string_view& query_prepare_statement) : _query(query_prepare_statement), get_conn(conn) {
+        constexpr Query(const std::string_view& query_prepare_statement) : _query(query_prepare_statement) {
+           //static_assert(std::is_base_of<Table, TableT>::value, "Query should be applied onto class derived from Table.");
         }
         
         void operator()(typename decltype(Columns)::type... args) const {
@@ -56,9 +61,9 @@ namespace ORM {
     template <Column... vars>
     using Result = std::tuple<typename decltype(vars)::type...>;
 
-    template<typename RowT, Column... ArgsTs>
-    using NonTransactionalQuery = Query<RowT, ArgsTs...>;
+    template<typename TableT, typename RowT, Column... ArgsTs>
+    using NonTransactionalQuery = Query<TableT, RowT, ArgsTs...>;
     
-    template<Column... ArgsTs>
-    using TransactionalQuery = Query<void, ArgsTs...>;
+    template<typename TableT, Column... ArgsTs>
+    using TransactionalQuery = Query<TableT, void, ArgsTs...>;
 };
