@@ -24,9 +24,21 @@ namespace ORM {
 
     class DBConnection;
     
+    template<typename RowT>
+    class DBExecutor;
+    
     template<typename TableT,
              typename RowT, Column... Columns>
     class Query;
+
+    template <Column... vars>
+    using Result = std::tuple<typename decltype(vars)::type...>;
+
+    template<typename TableT, typename RowT, Column... ArgsTs>
+    using NonTransactionalQuery = Query<TableT, RowT, ArgsTs...>;
+    
+    template<typename TableT, Column... ArgsTs>
+    using TransactionalQuery = Query<TableT, void, ArgsTs...>;
 
     class Page;
 

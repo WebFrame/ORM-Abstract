@@ -6,7 +6,7 @@
  ***********************************************/
 
 #pragma once
-#include <orm/orm.hpp>
+#include "../orm.hpp"
 
 namespace ORM {
     template<typename T>

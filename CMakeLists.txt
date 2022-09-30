@@ -1,0 +1,56 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
+PROJECT(ORM-Abstract C CXX)
+
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR}/cmake/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}/cmake/bin)
+
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/lib)
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+
+
+#include(CTest)
+#enable_testing()
+
+if (MSVC)
+    # warning level 4 and all warnings as errors
+    add_compile_options(/W4 /WX)
+else()
+    # lots of warnings and all warnings as errors
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
+
+set(ORM_COMPONENTS "")
+
+ADD_LIBRARY(orm 
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/orm/orm.hpp"
+)
+SET_TARGET_PROPERTIES(orm PROPERTIES LINKER_LANGUAGE CXX)
+
+if (NOT DEFINED NO_MYSQL) 
+    SET(MYSQL_SERVER_ROOT_FOLDER "C:/Program Files/MySQL/MySQL Server 8.0/")
+    SET(MYSQL_SERVER_INCLUDE_FOLDER "${MYSQL_SERVER_ROOT_FOLDER}include")
+    SET(MYSQL_SERVER_LIB_FOLDER "${MYSQL_SERVER_ROOT_FOLDER}lib")
+    include_directories(${MYSQL_SERVER_INCLUDE_FOLDER})
+    link_directories(${MYSQL_SERVER_LIB_FOLDER})
+    add_compile_options(-L"${MYSQL_SERVER_LIB_FOLDER}")
+    ADD_LIBRARY(orm-mysql 
+        "${CMAKE_CURRENT_SOURCE_DIR}/lib/orm/mysql.hpp"
+    )
+    SET_TARGET_PROPERTIES(orm-mysql PROPERTIES LINKER_LANGUAGE CXX)
+    TARGET_LINK_LIBRARIES(orm-mysql PUBLIC mysql mysqlclient)
+    TARGET_INCLUDE_DIRECTORIES(orm-mysql PUBLIC lib/)
+else(NOT DEFINED NO_MYSQL)
+    add_compile_definitions("NO_MYSQL=")
+endif(NOT DEFINED NO_MYSQL)
+
+ADD_EXECUTABLE(main example/main.cpp)
+TARGET_LINK_LIBRARIES(main PUBLIC orm orm-mysql)
+TARGET_INCLUDE_DIRECTORIES(main PUBLIC lib/)
+
+#include(CPack)

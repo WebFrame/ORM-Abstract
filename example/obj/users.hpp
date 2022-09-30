@@ -1,6 +1,16 @@
 #pragma once
 #include <orm/orm.hpp>
-#include <orm/mysql.hpp>
+
+#ifndef NO_MYSQL
+    #include <orm/mysql.hpp>
+#else
+    #include <orm/mockdb.hpp>
+    namespace ORM {
+        using MySQL = Mock_MySQL;
+        template<typename T>
+        using MySQLExecutor = Mock_MySQLExecutor<T>;
+    }
+#endif
 
 #include <string>
 

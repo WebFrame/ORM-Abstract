@@ -6,7 +6,7 @@
  ***********************************************/
 
 #pragma once
-#include <orm/orm.hpp>
+#include "../orm.hpp"
 #include <list>
 #include <iostream>
 #include <type_traits>
@@ -57,13 +57,4 @@ namespace ORM {
             this->execute(args...);
         }
     };
-    
-    template <Column... vars>
-    using Result = std::tuple<typename decltype(vars)::type...>;
-
-    template<typename TableT, typename RowT, Column... ArgsTs>
-    using NonTransactionalQuery = Query<TableT, RowT, ArgsTs...>;
-    
-    template<typename TableT, Column... ArgsTs>
-    using TransactionalQuery = Query<TableT, void, ArgsTs...>;
 };
