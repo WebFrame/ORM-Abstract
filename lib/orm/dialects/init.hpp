@@ -6,14 +6,17 @@
  ***********************************************/
 
 #pragma once
-#include "../orm.hpp"
+#include "../ORM.hpp"
 #include <string>
+#include "../std/string_view"
+#include <sstream>
 #include <regex>
 #include <type_traits>
 
 namespace ORM {
     /* abstract */ class Dialect {
     public:
+        virtual ~Dialect() = default;
         virtual std::string parse(int8_t value) const {
             std::stringstream ss;
             ss << value;
@@ -111,52 +114,8 @@ namespace ORM {
             char* buf = new char[sz + 1];
             snprintf(buf, sizeof(char) * (sz + 1), fmt, skip_to(ItemsPerPage, page), ItemsPerPage);
             std::string get_page_query = std::string(buf);
-            delete buf;
+            delete[] buf;
             return get_page_query;
         };
-    };
-
-    template<typename TableT, typename RowT, Column... Columns>
-    class PagedQuery : public Query<TableT, RowT, Columns...> {
-    public:
-        constexpr PagedQuery(const std::string_view& query_prepare_statement) : Query<TableT, RowT, Columns...>(query_prepare_statement) {
-            //static_assert(std::is_base_of<Table, TableT>::value, "Query should be applied onto class derived from Table.");
-        }
-        
-        std::list<RowT> execute(size_t ItemsPerPage, std::size_t page, typename decltype(Columns)::type... args) const {
-            auto exec = TableT::template get_executor<RowT>();
-            return exec->execute(
-                exec->get_dialect()->get_query(
-                    this->query() + " " + exec->get_dialect()->get_pagification().get_page(ItemsPerPage, page), 
-                    args...
-                )
-            );
-        }
-
-        std::list<RowT> operator()(size_t ItemsPerPage, std::size_t page, typename decltype(Columns)::type... args) const {
-            return this->execute(ItemsPerPage, page, args...);
-        }
-    };
-
-    template<typename TableT, Column... Columns>
-    class PagedQuery<TableT, void, Columns...> : public Query<TableT, void, Columns...> {
-    public:
-        constexpr PagedQuery(const std::string_view& query_prepare_statement) : Query<TableT, void, Columns...>(query_prepare_statement) {
-            //static_assert(std::is_base_of<Table, TableT>::value, "Query should be applied onto class derived from Table.");
-        }
-        
-        void execute(size_t ItemsPerPage, std::size_t page, typename decltype(Columns)::type... args) const {
-            auto exec = TableT::template get_executor<void>();
-            exec->execute(
-                exec->get_dialect()->get_query(
-                    this->query() + " " + exec->get_dialect()->get_pagification().get_page(ItemsPerPage, page), 
-                    args...
-                )
-            );
-        }
-
-        void operator()(size_t ItemsPerPage, std::size_t page, typename decltype(Columns)::type... args) const {
-            this->execute(ItemsPerPage, page, args...);
-        }
     };
 }

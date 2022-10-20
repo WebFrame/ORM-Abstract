@@ -6,16 +6,15 @@
  ***********************************************/
 
 #pragma once
-#include "../orm.hpp"
+#include "../ORM.hpp"
 #include <string>
 #include <iostream>
 
 namespace ORM {
     /* abstract */ class DBConnection {
-    protected:
-        virtual void init_conn(const std::string& conn) = 0;
     public:
         DBConnection() {}
+        virtual ~DBConnection() = default;
 
         virtual std::shared_ptr<Dialect> get_dialect() const = 0;
         
@@ -28,11 +27,13 @@ namespace ORM {
     /* abstract */ class DBExecutor : public DBConnection {
     public:
         virtual std::list<RowT> execute(const std::string&) = 0;
+        virtual ~DBExecutor() = default;
     };
 
     template<>
     /* abstract */ class DBExecutor<void> : public DBConnection { 
     public:   
         virtual void execute(const std::string&) = 0;
+        virtual ~DBExecutor() = default;
     };
 }

@@ -1,21 +1,10 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+﻿# WebFrame main CMakeLists with all sub projects
+cmake_minimum_required (VERSION 3.14)
 
-PROJECT(ORM-Abstract C CXX)
+project ("WebFrame" VERSION 1.0)
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/bin)
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR}/cmake/bin)
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}/cmake/bin)
-
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/lib)
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
-
-
-#include(CTest)
-#enable_testing()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if (MSVC)
     # warning level 4 and all warnings as errors
@@ -25,32 +14,38 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-set(ORM_COMPONENTS "")
+option(USE_ORM "Use ORM" ON)
+option(USE_MYSQL "Use MySQL Client" ON)
+option(RUN_TESTS "Run unit & integration tests" ON)
 
-ADD_LIBRARY(orm 
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/orm/orm.hpp"
-)
-SET_TARGET_PROPERTIES(orm PROPERTIES LINKER_LANGUAGE CXX)
+configure_file(WebFrame.hpp.in WebFrame.hpp)
 
-if (NOT DEFINED NO_MYSQL) 
-    SET(MYSQL_SERVER_ROOT_FOLDER "C:/Program Files/MySQL/MySQL Server 8.0/")
-    SET(MYSQL_SERVER_INCLUDE_FOLDER "${MYSQL_SERVER_ROOT_FOLDER}include")
-    SET(MYSQL_SERVER_LIB_FOLDER "${MYSQL_SERVER_ROOT_FOLDER}lib")
-    include_directories(${MYSQL_SERVER_INCLUDE_FOLDER})
-    link_directories(${MYSQL_SERVER_LIB_FOLDER})
-    add_compile_options(-L"${MYSQL_SERVER_LIB_FOLDER}")
-    ADD_LIBRARY(orm-mysql 
-        "${CMAKE_CURRENT_SOURCE_DIR}/lib/orm/mysql.hpp"
-    )
-    SET_TARGET_PROPERTIES(orm-mysql PROPERTIES LINKER_LANGUAGE CXX)
-    TARGET_LINK_LIBRARIES(orm-mysql PUBLIC mysql mysqlclient)
-    TARGET_INCLUDE_DIRECTORIES(orm-mysql PUBLIC lib/)
-else(NOT DEFINED NO_MYSQL)
-    add_compile_definitions("NO_MYSQL=")
-endif(NOT DEFINED NO_MYSQL)
+# Include sub-projects.
+if(USE_ORM)
+    add_subdirectory("lib/ORM")
+    list(APPEND EXTRA_LIBS ORM)
+    list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/lib")
+endif()
 
-ADD_EXECUTABLE(main example/main.cpp)
-TARGET_LINK_LIBRARIES(main PUBLIC orm orm-mysql)
-TARGET_INCLUDE_DIRECTORIES(main PUBLIC lib/)
+if(USE_MYSQL)
+    execute_process(COMMAND mysql_config --cflags
+        OUTPUT_VARIABLE MYSQL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND mysql_config --libs
+        OUTPUT_VARIABLE MYSQL_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    add_compile_options(${MYSQL_CFLAGS})
+    list(APPEND EXTRA_LIBS ${MYSQL_LIBS})
+endif()
+
+if(RUN_TESTS)
+    add_subdirectory("tests/ORM")
+endif()
+
+# Generate example source code
+add_executable(Example example/ORM.cpp)
+target_link_libraries(Example PUBLIC ${EXTRA_LIBS})
+target_include_directories(Example PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          )
 
 #include(CPack)

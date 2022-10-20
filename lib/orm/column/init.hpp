@@ -6,13 +6,16 @@
  ***********************************************/
 
 #pragma once
-#include "../orm.hpp"
+#include "../ORM.hpp"
+#include <string>
+#include "uid.hpp"
 
 namespace ORM {
-    template<typename T>
-    class Column {
+    template<typename T, size_t uid>
+    class _Column {
     public:
         using type = T;
-        constexpr Column() {  }
+        static constexpr size_t UUID = uid;
+        constexpr _Column() {}
     };
 }
