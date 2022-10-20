@@ -2,7 +2,7 @@
 #include <ORM/ORM.hpp>
 #include <string>
 
-#ifdef NO_MYSQL
+#ifndef NO_MYSQL
 #include <ORM/database/MySQL/mysql.hpp>
 
 constexpr const auto DB = ORM::Database<ORM::MySQL>({ "localhost", "root", "test", "DB", 3306, nullptr, 0 });
