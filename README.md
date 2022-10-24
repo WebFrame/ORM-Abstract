@@ -12,7 +12,7 @@
 1. Make sure to include the library and the database interface
 
     ```cpp
-    #include <orm/orm.hpp>
+    #include <ORM/ORM.hpp>
     ```
     - MySQL
         ```cpp
