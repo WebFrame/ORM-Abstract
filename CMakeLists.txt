@@ -39,13 +39,11 @@ if(RUN_TESTS)
     add_subdirectory("tests/ORM")
 endif()
 
-
-
 # Generate example source code
-add_executable(Example example/ORM.cpp)
-target_compile_definitions(Example PUBLIC DB_USERNAME="root" DB_PASSWORD="test")
-target_link_libraries(Example PUBLIC ${EXTRA_LIBS})
-target_include_directories(Example PUBLIC
+add_executable(ORM-Example example/ORM.cpp)
+target_compile_definitions(ORM-Example PUBLIC DB_USERNAME="root" DB_PASSWORD="test")
+target_link_libraries(ORM-Example PUBLIC ${EXTRA_LIBS})
+target_include_directories(ORM-Example PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           )
 
