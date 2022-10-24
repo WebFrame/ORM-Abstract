@@ -1,0 +1,96 @@
+name: Compile & Build
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    types: [opened]
+  pull_request_target:
+    branches:
+      - "*"
+
+jobs:
+  windows-mingw-build:
+    runs-on: windows-latest
+    name: Windows MinGW Build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Install dependencies on windows
+        run: |
+          choco install mingw --version 11.2.0.07112021
+          cmake --version
+          gcc --version
+      - name: Configure with MinGW
+        shell: bash
+        run: |
+          CXX_COMPILE=g++ cmake -G 'MinGW Makefiles' .
+      - name: Build
+        shell: bash
+        run: |
+          make
+  windows-clang-build:
+    runs-on: windows-latest
+    name: Windows Clang Build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Install dependencies on windows
+        run: |
+          choco install llvm
+          cmake --version
+          clang++ --version
+      - name: Configure with MinGW
+        shell: bash
+        run: |
+          CXX_COMPILE=clang++ cmake -G 'MinGW Makefiles' .
+      - name: Build
+        shell: bash
+        run: |
+          make
+  ubuntu-gcc-build:
+    name: Ubuntu GNU Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Install dependencies on ubuntu
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y gcc-11 g++-11 make tree
+          cmake --version
+          gcc-11 --version
+          g++-11 --version
+      - name: Configure for Ubuntu
+        shell: bash
+        run: |
+          CXX_COMPILE=g++ cmake -G 'Unix Makefiles' . 
+      - name: Build
+        shell: bash
+        run: |
+          make
+  ubuntu-clang-build:
+    name: Ubuntu Clang Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Install dependencies on ubuntu
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y clang make tree
+          cmake --version
+          clang++ --version
+      - name: Configure for Ubuntu
+        shell: bash
+        run: |
+          CXX_COMPILE=clang++ cmake -G 'Unix Makefiles' . 
+      - name: Build
+        shell: bash
+        run: |
+          make
