@@ -83,7 +83,7 @@
         Users::insertUser("Alex 'Coder of worlds' Tsvetanov");
         ```
     - Save request output
-        ``cpp
+        ```cpp
         auto query_output = Users::selectUser("Alex 'Coder of worlds' Tsvetanov");
         ```
     - Access different columns of the output rows
@@ -100,7 +100,7 @@ Check [example/](https://github.com/WebFrame/ORM-Abstract/blob/master/example) f
 1. DB migration
     If a change in the database type is needed, all you have to do is to change the ``DB`` variable template parameter with the new database. Then change the SQL requests if neccessary and you are set.
 1. SQL injection prevention
-    All database interfaces have their own SQL injection protection in case you want to use query parameters.
+    All database interfaces have their own SQL injection protection in case you want to use query parameters.   
 
 # Socials
 [![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/alex-tsvetanov/)
