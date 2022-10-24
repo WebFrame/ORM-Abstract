@@ -2,10 +2,10 @@
 #include <ORM/ORM.hpp>
 #include <string>
 
-#ifndef NO_MYSQL
+#ifdef USE_MYSQL
 #include <ORM/database/MySQL/mysql.hpp>
 
-constexpr const auto DB = ORM::Database<ORM::MySQL>({ "localhost", "root", "test", "DB", 3306, nullptr, 0 });
+constexpr const auto DB = ORM::Database<ORM::MySQL>({ "localhost", DB_USERNAME, DB_PASSWORD, "DB", 3306, nullptr, 0 });
 #else
 #include <ORM/database/MockSQL/MockSQL.hpp>
 

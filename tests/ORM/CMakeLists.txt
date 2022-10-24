@@ -4,7 +4,7 @@ include(CTest)
 enable_testing()
 
 add_executable(ORM-Tests main.cpp)
-target_include_directories(ORM-Tests PUBLIC "${PROJECT_SOURCE_DIR}/tests/lib")
+target_include_directories(ORM-Tests PUBLIC "${CMAKE_SOURCE_DIR}/lib")
 
 add_test(NAME Usage COMMAND ORM-Tests)
 set_tests_properties(Usage

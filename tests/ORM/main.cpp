@@ -1,5 +1,5 @@
-#include <moka/moka.h>
-#include <fakeit.hpp>
+#include "../lib/moka/moka.h"
+#include "../lib/fakeit.hpp"
 
 int main() {
 	Moka::Report report;

@@ -6,6 +6,7 @@
  ***********************************************/
 
 #pragma once
+#include "ORM-version.hpp"
 #include <string>
 #include <list>
 #include <variant>

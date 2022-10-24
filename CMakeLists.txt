@@ -1,7 +1,7 @@
-﻿# WebFrame main CMakeLists with all sub projects
+﻿# ORM main CMakeLists with all sub projects
 cmake_minimum_required (VERSION 3.14)
 
-project ("WebFrame" VERSION 1.0)
+project ("ORM" VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -14,18 +14,15 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-option(USE_ORM "Use ORM" ON)
 option(USE_MYSQL "Use MySQL Client" ON)
 option(RUN_TESTS "Run unit & integration tests" ON)
 
-configure_file(WebFrame.hpp.in WebFrame.hpp)
+configure_file(ORM.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/lib/ORM/ORM-version.hpp)
 
 # Include sub-projects.
-if(USE_ORM)
-    add_subdirectory("lib/ORM")
-    list(APPEND EXTRA_LIBS ORM)
-    list(APPEND EXTRA_INCLUDES "${PROJECT_SOURCE_DIR}/lib")
-endif()
+add_subdirectory("lib/ORM")
+list(APPEND EXTRA_LIBS ORM)
+list(APPEND EXTRA_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 
 if(USE_MYSQL)
     execute_process(COMMAND mysql_config --cflags
@@ -34,6 +31,7 @@ if(USE_MYSQL)
         OUTPUT_VARIABLE MYSQL_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     add_compile_options(${MYSQL_CFLAGS})
+    add_definitions(-DUSE_MYSQL)
     list(APPEND EXTRA_LIBS ${MYSQL_LIBS})
 endif()
 
@@ -41,8 +39,11 @@ if(RUN_TESTS)
     add_subdirectory("tests/ORM")
 endif()
 
+
+
 # Generate example source code
 add_executable(Example example/ORM.cpp)
+target_compile_definitions(Example PUBLIC DB_USERNAME="root" DB_PASSWORD="test")
 target_link_libraries(Example PUBLIC ${EXTRA_LIBS})
 target_include_directories(Example PUBLIC
                           "${PROJECT_BINARY_DIR}"
