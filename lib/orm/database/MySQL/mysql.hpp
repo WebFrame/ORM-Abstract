@@ -5,7 +5,7 @@
 
 #include <mysql/mysql.h>
 
-namespace ORM
+namespace webframe::ORM
 {
 	class MySQL : public DBConnection {
 	protected:
@@ -79,7 +79,8 @@ namespace ORM
 			return make_item<RowT>(res, fields, std::make_index_sequence<std::tuple_size<RowT>::value>{});
 		}
 	public:
-		using params_t = std::tuple<const char*, const char*, const char*, const char*, unsigned short, const char*, unsigned long>;
+		//                                 host,        user,    password,    database,           port,   unix sock,         flags, autocommit
+		using params_t = std::tuple<const char*, const char*, const char*, const char*, unsigned short, const char*, unsigned long, bool>;
 	protected:
 		void init_conn(const params_t& conn) {
 			mysql_init(this->get());
@@ -95,6 +96,7 @@ namespace ORM
 				mysql_close(this->get());
 				throw std::invalid_argument("Invalid connection string: Cannot connect to the database.");
 			}
+			mysql_autocommit(this->get(), std::get<7>(conn));
 		}
 
 	public:
@@ -112,6 +114,10 @@ namespace ORM
 
 		void rollback() {
 			mysql_rollback(this->get());
+		}
+
+		void begin_transaction() {
+			mysql_query(this->get(), "START TRANSACTION;");
 		}
 
 		std::shared_ptr<Dialect> get_dialect() const {

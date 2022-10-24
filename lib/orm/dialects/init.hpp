@@ -13,7 +13,7 @@
 #include <regex>
 #include <type_traits>
 
-namespace ORM {
+namespace webframe::ORM {
     /* abstract */ class Dialect {
     public:
         virtual ~Dialect() = default;

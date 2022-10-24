@@ -1,24 +1,21 @@
 #pragma once
 
 #include "../ORM.hpp"
-#include "permissions/init.hpp"
 #include <string>
 #include "../std/string_view"
 #include <memory>
 #include <map>
 
-namespace ORM {
+namespace webframe::ORM {
     template <typename DB_t>
 	struct Database {
     private:
 		typename DB_t::params_t connection_params;
 	public:
         using Connection = DB_t;
-        
-        explicit constexpr Database(typename DB_t::params_t params) : connection_params(params) {
 
-
-        } 
+        template <typename... Ts>
+        explicit constexpr Database(Ts&&... Args) : connection_params({Args...}) { }
     
         std::shared_ptr<DB_t> get_native_conn() const {
             static const auto conn = std::make_shared<DB_t>(connection_params);
@@ -32,13 +29,25 @@ namespace ORM {
         }
 
         template<typename RowT, typename... Columns>
-        constexpr _Query<Database<DB_t>, RowT, Columns...> Query(const std::string_view& query) const {
-            return _Query<Database<DB_t>, RowT, Columns...>(*this, query);
+        constexpr _Query<Database<DB_t>, typename ResultOf<RowT>::type, Columns...> Query(const std::string_view& query) const {
+            return _Query<Database<DB_t>, typename ResultOf<RowT>::type, Columns...>(*this, query);
         }
 
         template<typename RowT, typename... Columns>
-        constexpr _PagedQuery<Database<DB_t>, RowT, Columns...> PagedQuery(const std::string_view& query) const {
-            return _PagedQuery<Database<DB_t>, RowT, Columns...>(*this, query);
+        constexpr _PagedQuery<Database<DB_t>, typename ResultOf<RowT>::type, Columns...> PagedQuery(const std::string_view& query) const {
+            return _PagedQuery<Database<DB_t>, typename ResultOf<RowT>::type, Columns...>(*this, query);
+        }
+
+        void Begin() const {
+            get_native_conn()->begin_transaction();
+        }
+
+        void Commit() const {
+            get_native_conn()->commit();
+        }
+
+        void Rollback() const {
+            get_native_conn()->rollback();
         }
 	};
 }

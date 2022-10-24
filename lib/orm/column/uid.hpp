@@ -2,12 +2,12 @@
 
 #ifdef __cpp_lib_source_location
 #include <source_location>
-#define __ORM_LOCATION ORM::UUID::get(std::source_location::current())
+#define __ORM_LOCATION webframe::ORM::UUID::get(std::source_location::current())
 #else
-#define __ORM_LOCATION ORM::UUID::get(__FILE__, __LINE__)
+#define __ORM_LOCATION webframe::ORM::UUID::get(__FILE__, __LINE__)
 #endif
 
-namespace ORM {
+namespace webframe::ORM {
     class UUID {
     public:
         static constexpr size_t get(const std::string_view filename, const uint_least32_t line) {

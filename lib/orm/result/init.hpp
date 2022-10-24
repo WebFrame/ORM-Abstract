@@ -11,7 +11,7 @@
 #include <iostream>
 #include "../std/string_view"
 
-namespace ORM {
+namespace webframe::ORM {
 	template <typename... Columns>
 	class Result : public std::tuple<typename Columns::type...> {
 	private:
@@ -37,11 +37,29 @@ namespace ORM {
 			return std::get<get_column_index<Column, Columns::UUID...>()>(this->get_tuple());
 		}
 	};
+
+	template <typename T>
+	struct ResultOf {
+	};
+
+	template <typename T, size_t UUID>
+	struct ResultOf<_Column<T, UUID>> {
+		using type = Result<_Column<T, UUID>>;
+	};
+	template <typename... Ts>
+	struct ResultOf<Result<Ts...>> {
+		using type = Result<Ts...>;
+	};
+
+	template <>
+	struct ResultOf<void> {
+		using type = void;
+	};
 }
 namespace std {
 	template< typename... Types >
-	struct tuple_size<ORM::Result<Types...> > : public std::tuple_size< std::tuple<typename Types::type...> > {};
+	struct tuple_size<webframe::ORM::Result<Types...> > : public std::tuple_size< std::tuple<typename Types::type...> > {};
 
 	template< std::size_t I, typename... Types >
-	struct tuple_element< I, ORM::Result<Types...> > : public tuple_element< I, std::tuple<typename Types::type...> > {};
+	struct tuple_element< I, webframe::ORM::Result<Types...> > : public tuple_element< I, std::tuple<typename Types::type...> > {};
 }

@@ -29,11 +29,11 @@
 
     - MySQL
         ```cpp
-        constexpr const auto DB = ORM::Database<ORM::MySQL>({ DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT, nullptr, 0 });
+        constexpr const auto DB = ORM::Database<ORM::MySQL>(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT, UNIX_SOCKET/nullptr, MYSQL_FLAGS, AUTO_COMMIT);
         ``` 
     - MockSQL
         ```cpp
-        constexpr const auto DB = ORM::Database<ORM::MockSQL>({ "connection string" });
+        constexpr const auto DB = ORM::Database<ORM::MockSQL>(RANDOM_STRING);
         ```
     
 3. Initiate your table

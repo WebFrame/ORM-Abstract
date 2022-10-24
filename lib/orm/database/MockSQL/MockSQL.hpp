@@ -4,7 +4,7 @@
 #include <iostream>
 #include "../../std/string_view"
 
-namespace ORM
+namespace webframe::ORM
 {
 	class MockSQL : public DBConnection {
 	private:
@@ -30,6 +30,8 @@ namespace ORM
 		void commit();
 
 		void rollback();
+
+		void begin_transaction();
 
 		std::shared_ptr<Dialect> get_dialect() const;
 	};

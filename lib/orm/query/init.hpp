@@ -12,7 +12,7 @@
 #include <type_traits>
 #include "../std/string_view"
 
-namespace ORM {
+namespace webframe::ORM {
 
     template<typename DB_t, typename RowT, typename... Columns>
     /* abstract */ class _Query {
@@ -108,12 +108,12 @@ namespace ORM {
     };
 
     template<typename RowT, typename... Columns, typename DB_t>
-    constexpr _Query<DB_t, RowT, Columns...> Query(const DB_t& DB, const std::string_view& query) {
-        return _Query<DB_t, RowT, Columns...>(DB, query);
+    constexpr _Query<DB_t, typename ResultOf<RowT>::type, Columns...> Query(const DB_t& DB, const std::string_view& query) {
+        return _Query<DB_t, typename ResultOf<RowT>::type, Columns...>(DB, query);
     }
 
     template<typename RowT, typename... Columns, typename DB_t>
-    constexpr _PagedQuery<DB_t, RowT, Columns...> PagedQuery(const DB_t& DB, const std::string_view& query) {
-        return _PagedQuery<DB_t, RowT, Columns...>(DB, query);
+    constexpr _PagedQuery<DB_t, typename ResultOf<RowT>::type, Columns...> PagedQuery(const DB_t& DB, const std::string_view& query) {
+        return _PagedQuery<DB_t, typename ResultOf<RowT>::type, Columns...>(DB, query);
     }
 }

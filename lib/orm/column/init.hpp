@@ -10,7 +10,7 @@
 #include <string>
 #include "uid.hpp"
 
-namespace ORM {
+namespace webframe::ORM {
     template<typename T, size_t uid>
     class _Column {
     public:

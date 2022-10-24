@@ -11,7 +11,7 @@
 #include <regex>
 #include <memory>
 
-namespace ORM {
+namespace webframe::ORM {
     class Table {
     };
 }

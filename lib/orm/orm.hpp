@@ -18,7 +18,7 @@
 #include <string>
 #include "std/string_view"
 
-namespace ORM {
+namespace webframe::ORM {
     class Dialect;
 
     template <typename DB_t>
@@ -49,6 +49,9 @@ namespace ORM {
 
     template<typename DB_t, typename RowT, typename... Columns>
     class _Query;
+
+    template <typename T>
+    struct ResultOf;
 
     template <typename... Columns>
     class Result;

@@ -10,6 +10,7 @@ using namespace std;
 int main()
 {
     try {
+        DB.Begin();
         Users::createTable();
         Users::insertUser("Alex 'Coder of worlds' Tsvetanov");
         auto q1_id = Users::selectUser("Alex 'Coder of worlds' Tsvetanov");
@@ -31,6 +32,8 @@ int main()
         for (auto el : q4_id) {
             std::cout << el.get<Users::id>() << "," << el.get<Users::username>() << " ; ";
         }
+        std::cout << std::endl;
+        DB.Rollback();
     }
     catch (std::exception& msg) {
         printf("Error: %s\n", msg.what());

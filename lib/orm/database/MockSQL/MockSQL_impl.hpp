@@ -3,7 +3,7 @@
 #include <utility>
 #include <iostream>
 
-namespace ORM
+namespace webframe::ORM
 {
 	void MockSQL::init_conn(const params_t& conn)
 	{
@@ -23,6 +23,10 @@ namespace ORM
 	void MockSQL::rollback()
 	{
 		std::cout << "Rollback" << std::endl;
+	}
+	void MockSQL::begin_transaction() 
+	{
+		std::cout << "START TRANSACTION;" << std::endl;
 	}
 	std::shared_ptr<Dialect> MockSQL::get_dialect() const
 	{

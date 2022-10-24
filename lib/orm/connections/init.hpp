@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 
-namespace ORM {
+namespace webframe::ORM {
     /* abstract */ class DBConnection {
     public:
         DBConnection() {}
