@@ -33,7 +33,7 @@
         constexpr const auto DB = ORM::Database<ORM::MySQL>({ DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT, nullptr, 0 });
         ``` 
     - MockSQL
-        ```
+        ```cpp
         constexpr const auto DB = ORM::Database<ORM::MockSQL>({ "connection string" });
         ```
     
