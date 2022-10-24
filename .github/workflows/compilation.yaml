@@ -96,7 +96,6 @@ jobs:
           cmake --version
           gcc-11 --version
           g++-11 --version
-          tree
       - name: Configure for Ubuntu
         shell: bash
         run: |
@@ -105,6 +104,10 @@ jobs:
         shell: bash
         run: |
           make
+      - name: Tree
+        shell: bash
+        run: |
+          tree
       - name: Run tests
         shell: bash
         run: |
@@ -123,7 +126,6 @@ jobs:
           sudo apt-get install -y clang make tree
           cmake --version
           clang++ --version
-          tree
       - name: Configure for Ubuntu
         shell: bash
         run: |
@@ -132,6 +134,10 @@ jobs:
         shell: bash
         run: |
           make
+      - name: Tree
+        shell: bash
+        run: |
+          tree
       - name: Run tests
         shell: bash
         run: |
