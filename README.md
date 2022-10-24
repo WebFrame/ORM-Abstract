@@ -1,5 +1,5 @@
 # <span style="font-size: 2.25em;">ORM Library for C++</span>
-### Make your database usage eeasier and universal now!
+### Make your database usage easier and more universal now!
 <hr>
 
 #### Requirements
