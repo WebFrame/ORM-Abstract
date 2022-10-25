@@ -33,6 +33,30 @@ jobs:
         shell: bash
         run: |
           ./tests/ORM/ORM-Tests
+  windows-msvc-build:
+    runs-on: windows-latest
+    name: Windows MinGW Build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - uses: ilammy/msvc-dev-cmd@v1.4.1
+      - name: Install dependencies on windows
+        run: |
+          cmake --version
+          cl --version
+      - name: Configure with MSVC++
+        shell: bash
+        run: |
+          CXX_COMPILE=cl cmake -DUSE_MYSQL=OFF -G 'MinGW Makefiles' .
+      - name: Build
+        shell: bash
+        run: |
+          make
+      - name: Run tests
+        shell: bash
+        run: |
+          ./tests/ORM/ORM-Tests
   windows-mingw-build:
     runs-on: windows-latest
     name: Windows MinGW Build
